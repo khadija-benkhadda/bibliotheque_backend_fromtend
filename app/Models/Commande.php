@@ -4,21 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 class Commande extends Model
 {
-    public function client() {
+    use HasFactory;
+    protected $fillable = ['date', 'client_id'];
+
+    public function client()
+    {
         return $this->belongsTo(Client::class);
     }
 
-    public function produits() {
-        return $this->belongsToMany(Produit::class)
-            ->withPivot('qte_cmd')
-            ->withTimestamps();
+    public function produits()
+    {
+        return $this->belongsToMany(Produit::class, 'commande_produit')->withPivot('qte_cmd');
     }
-    protected $casts = [
-        'date' => 'datetime',
-    ];
 }
-  
-
-

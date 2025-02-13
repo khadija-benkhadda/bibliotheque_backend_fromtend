@@ -1,21 +1,29 @@
 <?php
+
 namespace Database\Seeders;
 
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
     {
         $this->call([
-            ClientsSeeder::class,
-            ProduitsSeeder::class,
-            CommandesSeeder::class,
+            ClientSeeder::class,
+            ProduitSeeder::class,
+            CommandeSeeder::class,
+            CommandeProduitSeeder::class,
         ]);
-        // Dans DatabaseSeeder.php
-$commande->produits()->attach([
-    1 => ['qte_cmd' => 3],
-    2 => ['qte_cmd' => 5]
-]);
+        
+        // \App\Models\User::factory(10)->create();
+
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
     }
 }

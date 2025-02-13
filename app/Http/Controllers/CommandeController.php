@@ -1,49 +1,105 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Commande;
 use App\Models\Client;
 use App\Models\Produit;
+use Illuminate\Http\Request;
+
 class CommandeController extends Controller
 {
+    // public function index() {
+    //     $commandes = Commande::paginate(10);
+    //     // Nombre de commandes par client
+    //     $commandesParClient = Client::withCount('commandes')->get();
+    //     return view('commandes.index', compact('commandes'));
+    // }
     public function index(Request $request)
     {
-        $search = $request->input('search');
         
-        $commandes = Commande::with('client')
-            ->when($search, function ($query) use ($search) {
-                return $query->whereHas('client', function ($q) use ($search) {
-                    $q->where('nom', 'like', "%$search%");
-                });
-            })
-            ->paginate(10);
+        // Récupérer tous les clients pour le formulaire de recherche
+ 
+        $clients = Client::all();
 
-        return view('commandes.index', compact('commandes'));
+        // Récupérer le nombre de commandes par client
+        $commandesParClient = Client::withCount('commandes')->get();
+
+        //recherche
+        $clientId = $request->input('client_id'); // Récupérer l'ID du client sélectionné
+
+        if (!$clientId) {
+            $commandes = Commande::paginate(10);
+        } else {
+            $commandes = Commande::where('client_id', $clientId)->paginate(10);
+        }
+     
+
+        // Passer les commandes, les clients et le nombre de commandes par client à la vue
+        return view('commandes.index', compact('commandes', 'commandesParClient', 'clients','clientId'));
+    }
+
+    public function create() {
+        $clients = Client::all();
+        //$produits = Produit::all();
+        return view('commandes.create', compact('clients'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'produits' => 'required|array',
-            'produits.*.id' => 'required|exists:produits,id',
-            'produits.*.qte' => 'required|integer|min:1'
+            'date' => 'required|date|before_or_equal:today',
         ]);
 
+        // Crée une nouvelle commande
         $commande = Commande::create([
-            'date' => now(),
-            'client_id' => $validated['client_id']
+            'client_id' => $request->client_id,
+            'date' => $request->date,
         ]);
-
-        foreach ($validated['produits'] as $produit) {
-            $commande->produits()->attach($produit['id'], [
-                'qte_cmd' => $produit['qte']
-            ]);
-        }
-
-        return redirect()->route('commandes.index');
+        
+        return redirect()->route('commandes.index')->with('success', 'Commande créée avec succès!');
     }
 
-    // Autres méthodes...
+    public function show($id) {
+        $commande = Commande::with('produits')->findOrFail($id); 
+        $produits = Produit::all();
+        return view('commandes.show', compact('commande', 'produits'));
+    }
+
+    public function edit(Commande $commande) {
+        $clients = Client::all();
+       // $produits = Produit::all();
+        return view('commandes.edit', compact('commande', 'clients'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        // Valider les données
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'date' => 'required|date|before_or_equal:today',
+        ]);
+        // Récupérer la commande
+        $commande = Commande::findOrFail($id);
+        $commande->update([
+            'client_id' => $request->client_id,
+            'date' => $request->date,
+        ]);
+  
+        // Ajouter le produit à la commande (via la relation many-to-many)
+        //$commande->produits()->attach($request->produit_id, ['qte_cmd' => $request->qte_cmd]);
+
+        return redirect()->route('commandes.index')->with('success', 'Produit ajouté à la commande');
+    }
+
+    public function destroy($id)
+    {
+        $commande = Commande::findOrFail($id);
+        $commande->delete();
+
+        return redirect()->route('commandes.index')->with('success', 'Commande supprimée avec succès.');
+    }
+
+ 
 }

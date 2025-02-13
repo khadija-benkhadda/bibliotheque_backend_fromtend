@@ -2,16 +2,20 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Client;
-class ClientsSeeder extends Seeder
+class ClientSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run()
-    {
-        Client::create(['nom' => 'khadija', 'prenom' => 'ben khadda']);
-        Client::create(['nom' => 'youssera', 'prenom' => 'hamdane']);
-        Client::create(['nom' => 'amal', 'prenom' => 'fertoul']);
-
-    }
+{
+    DB::table('clients')->insert([
+        ['nom' => 'khadija', 'prenom' => 'ben khadda'],
+        ['nom' => 'youssera', 'prenom' => 'hamdane'],
+    ]);
 }
 
+}

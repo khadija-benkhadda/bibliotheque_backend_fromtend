@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Produit extends Model
 {
+    use HasFactory;
+    protected $fillable = ['nom', 'prix', 'qte_stock'];
     public function commandes()
     {
-        return $this->belongsToMany(Commande::class)
-                    ->withPivot('qte_cmd')
-                    ->withTimestamps();
-    }}
+        return $this->belongsToMany(Commande::class, 'commande_produit')->withPivot('qte_cmd');
+    }
+
+}

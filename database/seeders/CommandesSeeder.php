@@ -1,25 +1,28 @@
 <?php
+
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Commande;
 use App\Models\Client;
-
-
-class CommandesSeeder extends Seeder
+class CommandeSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run()
     {
-        // Récupérer des clients existants
-        $clients = Client::all();
+        
+        $client = Client::first(); 
 
-        // Vérifier si des clients existent avant d'insérer des commandes
-        if ($clients->count() > 0) {
-            Commande::create(['date' => now(), 'client_id' => $clients->random()->id]);
-            Commande::create(['date' => now()->subDays(2), 'client_id' => $clients->random()->id]);
-            Commande::create(['date' => now()->subDays(5), 'client_id' => $clients->random()->id]);
+        if ($client) {
+            Commande::create([
+                'date' => now(),
+                'client_id' => $client->id,
+            ]);
         } else {
-            echo "⚠️ Aucun client trouvé ! Exécutez d'abord le seeder ClientsSeeder.\n";
+            echo "Aucun client trouvé pour ajouter une commande.";
         }
     }
 }

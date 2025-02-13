@@ -1,15 +1,21 @@
 <?php
+
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Produit;
-
-class ProduitsSeeder extends Seeder
+class ProduitSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run()
-    {
-        Produit::create(['nom' => 'Ordinateur', 'qte_stock' => 10, 'prix' => 1500.00]);
-        Produit::create(['nom' => 'Souris', 'qte_stock' => 50, 'prix' => 20.99]);
-        Produit::create(['nom' => 'Clavier', 'qte_stock' => 30, 'prix' => 45.50]);
-    }
+{
+    DB::table('produits')->insert([
+        ['nom' => 'Ordinateur', 'qte_stock' => 10, 'prix' => 500.00],
+        ['nom' => 'Téléphone', 'qte_stock' => 20, 'prix' => 300.00]
+    ]);
+}
+
 }
