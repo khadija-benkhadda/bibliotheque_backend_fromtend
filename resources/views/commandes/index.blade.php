@@ -121,4 +121,6 @@
     <div>
         {{ $commandes->links() }}
     </div>
+
+
 @endsection

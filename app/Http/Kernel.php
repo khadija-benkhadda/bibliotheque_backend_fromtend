@@ -39,15 +39,18 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
-        'api' => [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ],
+       'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+],
+
         'test'=>[
             \App\Http\Middleware\Midleage::class,
             \App\Http\Middleware\Usermidle::class,
         ],
+
     ];
 
     /**
@@ -69,5 +72,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'age'=>\App\Http\Middleware\Midleage::class,
         'name'=>\App\Http\Middleware\Usermidle::class,
+        'auth' => \App\Http\Middleware\AdminMiddleware::class,
     ];
+
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nom');
             $table->integer('qte_stock');
             $table->decimal('prix', 8, 2);
+            $table->string('file')->nullable(); // Ajout du champ pour stocker le fichier
             $table->timestamps();
         });
     }

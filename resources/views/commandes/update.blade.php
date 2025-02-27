@@ -14,7 +14,7 @@
         </div>
     @endif
 
-    <form action="{{ route('commandes.update', $commande->id) }}" method="POST">
+    <form action="{{ route('commandes.update', $commande->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -34,6 +34,17 @@
         <div class="mb-3">
             <label for="date" class="form-label">Date :</label>
             <input type="date" name="date" class="form-control" value="{{ $commande->date }}" required>
+        </div>
+
+        <!-- Upload de fichier -->
+        <div class="mb-3">
+            <label for="file" class="form-label">Ajouter un fichier :</label>
+            <input type="file" name="file" class="form-control">
+            @if($commande->file_path)
+                <p>Fichier actuel :
+                    <a href="{{ asset('storage/' . $commande->file_path) }}" target="_blank">Voir le fichier</a>
+                </p>
+            @endif
         </div>
 
         <!-- Produits commandés -->
