@@ -39,12 +39,13 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
-       'api' => [
+ 'api' => [
     \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
     'throttle:api',
-    \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+
 ],
+
 
         'test'=>[
             \App\Http\Middleware\Midleage::class,
@@ -73,6 +74,7 @@ class Kernel extends HttpKernel
         'age'=>\App\Http\Middleware\Midleage::class,
         'name'=>\App\Http\Middleware\Usermidle::class,
         'auth' => \App\Http\Middleware\AdminMiddleware::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 
 }

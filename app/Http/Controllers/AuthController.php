@@ -1,69 +1,64 @@
 <?php
+
 namespace App\Http\Controllers;
-
-use App\Models\Compte;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Registered;
 
-class AuthController extends Controller {
-    public function showInscription() {
-        return view('auth.inscription');
-    }
-
-    public function register(Request $request) {
-        $request->validate([
-            'login' => 'required|unique:comptes',
-            'mot_passe' => 'required|min:3',
+class AuthController extends Controller
+{
+    // Registration
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string',
         ]);
 
-        $compte = Compte::create([
-            'login' => $request->login,
-            'mot_passe' => $request->mot_passe,
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        Session::put('compte', $compte);
-        return redirect()->route('profil');
+        // event(new Registered($user));
+
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ], 201);
     }
 
-    public function showConnexion() {
-        return view('auth.connexion');
-    }
-
-    public function login(Request $request) {
-        $request->validate([
-            'login' => 'required',
-            'mot_passe' => 'required',
+    // Login
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'password' => 'required|string|min:8',
         ]);
 
-        $compte = Compte::where('login', $request->login)->first();
-
-        if ($compte && Hash::check($request->mot_passe, $compte->mot_passe)) {
-            Session::put('compte', $compte);
-            return redirect()->route('profil');
-        } else {
-            return back()->withErrors(['login' => 'Identifiants incorrects.']);
-        }
-    }
-
-    public function profil() {
-        $compte = Session::get('compte');
-
-        if (!$compte) {
-            return redirect()->route('connexion');
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
 
-        if ($compte->profil === 'admin') {
-            $clients = Compte::where('profil', 'client')->get();
-            return view('auth.admin_profil', compact('clients'));
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return view('auth.client_profil', compact('compte'));
-    }
+        $token = $user->createToken('YourAppName')->plainTextToken;
 
-    public function logout() {
-        Session::forget('compte');
-        return redirect()->route('connexion');
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token
+        ]);
     }
 }

@@ -35,12 +35,18 @@ return [
     |
     */
 
-    'guards' => [
-        'web' => [
-            'driver' => 'sanctum',
-            'provider' => 'users',
-        ],
+'guards' => [
+    'api' => [
+        'driver' => 'passport',
+        'provider' => 'users',
     ],
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
+
+
 
     /*
     |--------------------------------------------------------------------------
