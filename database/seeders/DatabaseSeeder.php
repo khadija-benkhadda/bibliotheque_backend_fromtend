@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             CommandeSeeder::class,
             CommandeProduitSeeder::class,
             RoomSeeder::class,
+            EmpruntSeeder::class,
+            LivreSeeder::class,
+            AuteurSeeder::class
 
         ]);
 

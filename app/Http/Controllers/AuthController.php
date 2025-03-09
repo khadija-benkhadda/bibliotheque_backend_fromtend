@@ -1,42 +1,55 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Registration
+    // Afficher le formulaire d'inscription
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    // Inscription
     public function register(Request $request)
     {
+        // Validation des données
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string',
+            'password' => 'required|string|confirmed|min:8',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return back()->withErrors($validator)->withInput();
         }
 
+        // Création de l'utilisateur
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        // event(new Registered($user));
+        // Connexion de l'utilisateur
+        Auth::login($user);
 
-        return response()->json([
-            'message' => 'User successfully registered',
-            'user' => $user
-        ], 201);
+        return redirect()->route('home');
     }
 
-    // Login
+    // Afficher le formulaire de connexion
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    // Connexion
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -45,20 +58,20 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return back()->withErrors($validator)->withInput();
         }
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if (Auth::attempt($request->only('email', 'password'))) {
+            return redirect()->route('home');
         }
 
-        $token = $user->createToken('YourAppName')->plainTextToken;
+        return back()->withErrors(['email' => 'Les informations de connexion sont incorrectes.']);
+    }
 
-        return response()->json([
-            'message' => 'Login successful',
-            'token' => $token
-        ]);
+    // Déconnexion
+    public function logout()
+    {
+        Auth::logout();
+        return redirect('/login');
     }
 }
